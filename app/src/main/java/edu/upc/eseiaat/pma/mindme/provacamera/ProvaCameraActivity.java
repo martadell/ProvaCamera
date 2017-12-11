@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.provider.MediaStore;
@@ -17,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,19 +34,22 @@ public class ProvaCameraActivity extends AppCompatActivity {
     LocationManager locationManager;
     TextView txt_lat, txt_long;
 
+
     private void writeLastLocation() {
         try {
             FileOutputStream fos = openFileOutput("Location.txt", Context.MODE_PRIVATE);
-                String la = txt_lat.getText().toString();
-                String lo = txt_long.getText().toString();
-                String line = String.format("%s;%s", la, lo);
-                fos.write(line.getBytes());
+            String la = txt_lat.getText().toString();
+            String lo = txt_long.getText().toString();
+
+            String line = String.format("%s;%s", la, lo);
+            fos.write(line.getBytes());
+
             fos.close();
         } catch (FileNotFoundException e) {
-            Log.e("MindMe", "writeItemList: FileNotFoundException");
+            Log.e("MindMe", "writeLastLocation: FileNotFoundException");
             Toast.makeText(this, "Unable to create a save file", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Log.e("MindMe", "writeItemList: IOException");
+            Log.e("MindMe", "writeLastLocation: IOException");
             Toast.makeText(this, "Unable to create a save file", Toast.LENGTH_SHORT).show();
         }
     }
@@ -56,6 +62,7 @@ public class ProvaCameraActivity extends AppCompatActivity {
             if (nread > 0) {
                 String content = new String(buffer, 0, nread);
                 String[] location = content.split(";");
+
                 txt_lat.setText(location[0]);
                 txt_long.setText(location[1]);
             }
@@ -63,15 +70,58 @@ public class ProvaCameraActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             Log.i("MindMe", "FileNotFoundException");
         } catch (IOException e) {
-            Log.e("MindMe", "readItemList: IOException");
+            Log.e("MindMe", "readLastLocation: IOException");
             Toast.makeText(this, "Unable to read the saved file", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /*private void writeLastPicture() {
+        try {
+            FileOutputStream fos = openFileOutput("Picture.txt", Context.MODE_PRIVATE);
+
+            imageView.buildDrawingCache();
+            Bitmap bitmap = imageView.getDrawingCache();
+            ByteArrayOutputStream blob = new ByteArrayOutputStream();
+
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0 , blob);
+            byte[] bitmapdata = blob.toByteArray();
+            fos.write(bitmapdata);
+
+            fos.close();
+        } catch (FileNotFoundException e) {
+            Log.e("MindMe", "writeLastPicture: FileNotFoundException");
+            Toast.makeText(this, "Unable to create a save file", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Log.e("MindMe", "writeLastPicture: IOException");
+            Toast.makeText(this, "Unable to create a save file", Toast.LENGTH_SHORT).show();
+        }
+    }*/
+
+
+    /*private void readLastPicture() {
+        try {
+            FileInputStream fis = openFileInput("Picture.txt");
+
+            byte[] buf = new byte[1000];
+            int nread = fis.read(buf);
+            if (nread > 0) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(buf, 0, buf.length);
+                imageView.setImageBitmap(bitmap);
+}
+            fis.close();
+        } catch (FileNotFoundException e) {
+            Log.i("MindMe", "FileNotFoundException");
+        } catch (IOException e) {
+            Log.e("MindMe", "readLastPicture: IOException");
+            Toast.makeText(this, "Unable to read the saved file", Toast.LENGTH_SHORT).show();
+        }
+    }*/
 
     @Override
     protected void onStop() {
         super.onStop();
         writeLastLocation();
+      //  writeLastPicture();
     }
 
     @Override
@@ -86,6 +136,7 @@ public class ProvaCameraActivity extends AppCompatActivity {
         txt_long = (TextView) findViewById(R.id.txt_long);
 
         readLastLocation();
+        //readLastPicture();
 
     }
 
